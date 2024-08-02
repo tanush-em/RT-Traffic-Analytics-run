@@ -1,6 +1,6 @@
 # RT-Traffic-Analytics-run
 RT-Traffic-Analytics is a real-time traffic analysis tool that utilizes a YOLOv8 model for object detection and the DeepSORT algorithm for object tracking. 
-This repository is dedicated to ONLY running the model and its services. 
+*This repository is dedicated to ONLY running the model and its services.*
 This project is designed to analyze video footage and count unique vehicles, categorized into different classes such as cars, buses, two-wheelers, heavy vehicles, and auto-rickshaws.
 
 ## Features

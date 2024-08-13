@@ -15,9 +15,10 @@ This project is designed to analyze video footage and count unique vehicles, cat
     - YOLOv8 (Ultralytics)
     - OpenCV
     - NumPy
+    - Torch
+    - Pandas
     - deep-sort-realtime (Deep Simple Online and Realtime Tracking)
    
 ## Workflow
     - Use the *get_ROI.py* file to get the coordinates of the focus polygon
-    - Configure the *run.py* to set the path and weights.
-    - Now run *run.py*
+    - Now run *app.py*

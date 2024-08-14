@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import cv2
@@ -12,6 +13,12 @@ camera_profiles_df = pd.read_excel('camera_profiles.xlsx')  # Update with your f
 
 # Path to the pre-trained YOLO model weights
 MODEL_WEIGHTS_PATH = r"E:\Infomaps\RT Vehicle Detection\build\RT-Traffic-Analytics-run\100epochs-night.pt"
+
+# Directory to temporarily store uploaded videos
+TEMP_VIDEO_DIR = "<PATH>"  # Replace <PATH> with your desired directory
+
+# Ensure that the directory exists
+os.makedirs(TEMP_VIDEO_DIR, exist_ok=True)
 
 # Function to retrieve location and ROI (Region of Interest) coordinates for a given camera profile ID
 def get_camera_profile_details(profile_id):
@@ -128,7 +135,10 @@ st.write(f"ROI Coordinates: {roi_coordinates}")
 uploaded_video = st.sidebar.file_uploader("Upload a video file", type=["mp4", "avi", "mov", "mkv"])
 
 if uploaded_video is not None:
-    video_path = uploaded_video.name
+    # Define video path in the temporary directory
+    video_path = os.path.join(TEMP_VIDEO_DIR, uploaded_video.name)
+    
+    # Save the uploaded video to the temporary directory
     with open(video_path, mode='wb') as f:
         f.write(uploaded_video.read())
 
@@ -148,6 +158,10 @@ if uploaded_video is not None:
         st.success("Processing Complete!")
         st.write("Object Counts:")
         st.json(object_counts)
+
+        # Delete the video file after processing
+        if os.path.exists(video_path):
+            os.remove(video_path)
 
 else:
     st.sidebar.warning("Please upload a video file.")

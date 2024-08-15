@@ -159,10 +159,10 @@ if uploaded_video is not None:
         st.write("Object Counts:")
         st.json(object_counts)
 
-        # Attempt to delete the video file after processing
+        # Delete the video file after processing
         try:
-            cap.release()  # Ensure that the video capture is fully released
-            os.remove(video_path)  # Delete the temporary video file
+            cap.release()  
+            os.remove(video_path) 
             st.write("Temporary file successfully deleted.")
         except Exception as e:
             st.error(f"Error deleting temporary file: {e}")

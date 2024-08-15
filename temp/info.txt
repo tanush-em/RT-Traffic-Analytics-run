@@ -1,0 +1,2 @@
+            **DO NOT DELETE THIS DIRECTORY / FOLDER**
+This used for caching and storing videos currently processing locally. The completed videos will be automatically deleted. 

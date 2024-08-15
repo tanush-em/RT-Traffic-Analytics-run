@@ -12,10 +12,10 @@ import torch
 camera_profiles_df = pd.read_excel('camera_profiles.xlsx')  # Update with your file path
 
 # Path to the pre-trained YOLO model weights
-MODEL_WEIGHTS_PATH = r"E:\Infomaps\RT Vehicle Detection\build\RT-Traffic-Analytics-run\100epochs-night.pt"
+MODEL_WEIGHTS_PATH = r"E:\Infomaps\RT Vehicle Detection\build\RT-Traffic-Analytics-run\weights\100epochs-day.pt"
 
 # Directory to temporarily store uploaded videos
-TEMP_VIDEO_DIR = "<PATH>"  # Replace <PATH> with your desired directory
+TEMP_VIDEO_DIR = "temp/"  # Replace <PATH> with your desired directory
 
 # Ensure that the directory exists
 os.makedirs(TEMP_VIDEO_DIR, exist_ok=True)
@@ -159,9 +159,13 @@ if uploaded_video is not None:
         st.write("Object Counts:")
         st.json(object_counts)
 
-        # Delete the video file after processing
-        if os.path.exists(video_path):
-            os.remove(video_path)
+        # Attempt to delete the video file after processing
+        try:
+            cap.release()  # Ensure that the video capture is fully released
+            os.remove(video_path)  # Delete the temporary video file
+            st.write("Temporary file successfully deleted.")
+        except Exception as e:
+            st.error(f"Error deleting temporary file: {e}")
 
 else:
     st.sidebar.warning("Please upload a video file.")

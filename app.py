@@ -1,3 +1,4 @@
+# Library and Package imports
 import os
 import streamlit as st
 import pandas as pd
@@ -15,20 +16,38 @@ camera_profiles_df = pd.read_excel('camera_profiles.xlsx')  # Update with your f
 MODEL_WEIGHTS_PATH = r"E:\Infomaps\RT Vehicle Detection\build\RT-Traffic-Analytics-run\weights\100epochs-day.pt"
 
 # Directory to temporarily store uploaded videos
-TEMP_VIDEO_DIR = "temp/"  # Replace <PATH> with your desired directory
+TEMP_VIDEO_DIR = "temp/"
 
 # Ensure that the directory exists
 os.makedirs(TEMP_VIDEO_DIR, exist_ok=True)
 
-# Function to retrieve location and ROI (Region of Interest) coordinates for a given camera profile ID
 def get_camera_profile_details(profile_id):
+    """
+    Retrieves the location and ROI coordinates for a specified camera profile ID.
+
+    Args:
+        profile_id (int): The ID of the camera profile.
+
+    Returns:
+        location (str): The location associated with the camera profile.
+        roi_coordinates (np.ndarray): The ROI coordinates as a NumPy array of tuples.
+    """
     row = camera_profiles_df[camera_profiles_df['Camera_Profile_ID'] == profile_id].iloc[0]
     location = row['Location']
     roi_coordinates = np.array([tuple(map(int, coord.split(','))) for coord in row['ROI_Coordinates'].split(' ')])
     return location, roi_coordinates
 
-# Function to resize an image to a target size while maintaining the aspect ratio by adding padding
 def resize_with_padding(image, target_size=(640, 640)):
+    """
+    Resizes an image to the specified target size while maintaining the aspect ratio by adding padding.
+
+    Args:
+        image (np.ndarray): The input image to resize.
+        target_size (tuple): The desired target size as (height, width).
+
+    Returns:
+        new_image (np.ndarray): The resized image with padding.
+    """
     original_h, original_w = image.shape[:2]
     target_h, target_w = target_size
     scaling_factor = min(target_w / original_w, target_h / original_h)
@@ -36,14 +55,30 @@ def resize_with_padding(image, target_size=(640, 640)):
     new_h = int(original_h * scaling_factor)
     resized_image = cv2.resize(image, (new_w, new_h))
     new_image = np.zeros((target_h, target_w, 3), dtype=np.uint8)
+
+    # Calculate padding to center the image
     top = (target_h - new_h) // 2
     left = (target_w - new_w) // 2
     new_image[top:top + new_h, left:left + new_w] = resized_image
     return new_image
 
-# Function to process a video and count objects within the defined ROI
 def process_video(video_path, roi_px_coordinates, MODEL_WEIGHTS_PATH, DEVICE='cuda', frame_skip_rate=1, confidence_threshold=0.5):
-    model = YOLO(MODEL_WEIGHTS_PATH).to(DEVICE)  # Load YOLO model
+    """
+    Processes a video and counts objects within a defined ROI using a YOLO model and DeepSort tracker.
+
+    Args:
+        video_path (str): The path to the video file.
+        roi_px_coordinates (np.ndarray): The coordinates defining the ROI.
+        MODEL_WEIGHTS_PATH (str): The path to the YOLO model weights.
+        DEVICE (str): The device to run the model on ('cuda' or 'cpu').
+        frame_skip_rate (int): The number of frames to skip during processing.
+        confidence_threshold (float): The minimum confidence required for detections.
+
+    Returns:
+        object_counts_summary (dict): A dictionary containing the count of each detected object within the ROI.
+    """
+    # Load YOLO model
+    model = YOLO(MODEL_WEIGHTS_PATH).to(DEVICE)
     cap = cv2.VideoCapture(video_path)
     target_size = (640, 640)  # Resize target size
     tracker = DeepSort(max_age=20, n_init=3)  # Initialize DeepSort tracker
@@ -68,11 +103,14 @@ def process_video(video_path, roi_px_coordinates, MODEL_WEIGHTS_PATH, DEVICE='cu
         if frame_counter % frame_skip_rate != 0:
             continue  # Skip frames based on the frame skip rate
 
-        frame = resize_with_padding(frame, target_size)  # Resize the frame
+        # Resize the frame
+        frame = resize_with_padding(frame, target_size)
         
-        frame_tensor = torch.from_numpy(frame).permute(2, 0, 1).unsqueeze(0).float().to(DEVICE)  # Convert frame to tensor
+        # Convert frame to tensor for model input
+        frame_tensor = torch.from_numpy(frame).permute(2, 0, 1).unsqueeze(0).float().to(DEVICE)
 
-        results = model(frame_tensor)  # Get detection results from YOLO model
+        # Get detection results from YOLO model
+        results = model(frame_tensor)
         detections = []
         classes = []
 
@@ -161,7 +199,6 @@ if uploaded_video is not None:
 
         # Delete the video file after processing
         try:
-            cap.release()  
             os.remove(video_path) 
             st.write("Temporary file successfully deleted.")
         except Exception as e:

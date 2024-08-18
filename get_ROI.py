@@ -1,22 +1,11 @@
-"""
-    USAGE:
-        - the video starts playing on default
-        - use 'p' to pause or play the video
-        - use 'q' to quit the window
-        - left click to start drawing the polygon on running video frame
-        - right click and 'q' to finish drawing 
-        - the script saves the coordinate automatically
-"""
 # Library Imports and Dependencies
 import cv2
 import numpy as np
 
-#############################################################################################################################################################
-# Enter unique camera feed identification name
-FILE_NAME = r"" 
+#################################################################################################################
 # Video path to get ROI coordinates for 
 video_path = r"E:\Infomaps\RT Vehicle Detection\src_files\night\NVR_ch53_main_20240807210000_20240807210022.mp4"
-#############################################################################################################################################################
+#################################################################################################################
 # Variable initialization
 roi_points = [] 
 drawing = False  
@@ -103,9 +92,6 @@ def select_roi(video_path):
 
 # Select ROI and get the points
 roi_polygon = select_roi(video_path)
-print(f"Selected ROI coordinates: {roi_polygon}")
 
-# Save the ROI coordinates to a file
-roi_coordinates_path = r'{}_ROI_coordinates.txt'.format(FILE_NAME)
-np.savetxt(roi_coordinates_path, roi_polygon, fmt='%d', delimiter=', ')
-print(f"ROI coordinates saved to: {roi_coordinates_path}")
+# Display the ROI coordinates in the terminal (no file saving)
+print(f"ROI coordinates: {roi_polygon}")
